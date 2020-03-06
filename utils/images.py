@@ -121,8 +121,8 @@ def load_images(path="../data/kkanji/kkanji2/", category_limit=None, minimum_cou
     num = 1
     # walk in the folders
     for root, dirs, files in tqdm.tqdm(list(os.walk(path))):
-        # skip if it is not containing files (just th first entry satisfies that)
-        if files.__len__() == 0:
+        # skip if it is not containing files (just th first entry satisfies that) or contains enough samples
+        if files.__len__() == 0 or files.__len__() < minimum_count:
             continue
         # getting label from folder name
         label = str(root.split("/")[-1])
@@ -132,16 +132,14 @@ def load_images(path="../data/kkanji/kkanji2/", category_limit=None, minimum_cou
         for file in files:
             img = cv.imread(os.path.join(root, file), cv.IMREAD_GRAYSCALE)
             images = np.concatenate([images, [img]], axis=0)
-        # checking if the class has enough samples
-        if images.shape[0] >= minimum_count:
-            # adding label
-            kanjis.add_label(label)
-            kanjis.add_images(images, label)
-            # limiting loaded categories
-            if category_limit is not None and num == category_limit:
-                break
-            elif category_limit is not None:
-                num += 1
+        # adding label
+        kanjis.add_label(label)
+        kanjis.add_images(images, label)
+        # limiting loaded categories
+        if category_limit is not None and num == category_limit:
+            break
+        elif category_limit is not None:
+            num += 1
 
     logging.info(f"{kanjis.__len__()} kanji under {kanjis.l2i.__len__()} classes is loaded")
     return kanjis
