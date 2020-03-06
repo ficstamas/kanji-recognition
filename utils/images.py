@@ -33,7 +33,7 @@ class Kanjis:
 
         :param seed: Seed for random number generation
         """
-        random.seed = seed
+        random.seed(seed)
 
     def add_label(self, label: str):
         """
