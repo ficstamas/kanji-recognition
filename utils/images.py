@@ -108,6 +108,7 @@ def load_images(path="../data/kkanji/kkanji2/", category_limit=None, minimum_cou
     :param path: Path to the folder of the Kanjis
     :param category_limit: Maximum number of categories to load
     :param random_seed: Seed for random number generation
+    :param minimum_count: Restriction on category samples (will load the category if it has at least this amount of samples)
     :return:
     """
 
