@@ -82,6 +82,9 @@ class Kanjis:
         :param train_ratio:
         :return:
         """
+        if train_ratio is None:
+            return self._images, self._labels, None, None
+
         mask = np.zeros(self._labels.shape, dtype=np.bool)
         size = mask.shape[0]
 
@@ -128,11 +131,16 @@ def load_images(path="../data/kkanji/kkanji2/", category_limit=None, minimum_cou
         # getting label from folder name
         label = str(root.split("/")[-1])
 
+        first_image = True
         images = np.array([np.zeros([64, 64], dtype=np.uint8)], dtype=np.uint8)
         # loading files
         for file in files:
             img = cv.imread(os.path.join(root, file), cv.IMREAD_GRAYSCALE)
-            images = np.concatenate([images, [img]], axis=0)
+            if first_image:
+                images = np.array([img], dtype=np.uint8)
+                first_image = False
+            else:
+                images = np.concatenate([images, [img]], axis=0)
         # adding label
         kanjis.add_label(label)
         kanjis.add_images(images, label)
