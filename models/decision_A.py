@@ -1,5 +1,4 @@
-from sklearn.svm import LinearSVC
-from sklearn.metrics import classification_report
+import logging
 from utils.images import load_images
 from preprocessors.baseline import ravel_data
 from sklearn.preprocessing import StandardScaler
@@ -18,5 +17,7 @@ classifier = DecisionTreeClassifier()
 classifier = classifier.fit(x_train,y_train)
 
 y_pred = classifier.predict(x_test)
+test_acc = metrics.cohen_kappa_score(y_test, y_pred)
 
 print('Accuracy Score:', metrics.accuracy_score(y_test,y_pred))
+logging.info(f"Test accuracy: {test_acc}")

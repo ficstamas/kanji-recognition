@@ -2,6 +2,7 @@ from sklearn.svm import LinearSVC
 from sklearn.metrics import classification_report
 from utils.images import load_images
 from sklearn import metrics
+import logging
 from preprocessors.baseline import ravel_data
 
 kanjis = load_images('C:\\Users\\takac\\OneDrive\\Desktop\\asd',
@@ -12,6 +13,8 @@ model = LinearSVC()
 model.fit(ravel_data(x_train), y_train)
 
 predictions = model.predict(ravel_data(x_test))
+test_acc = metrics.cohen_kappa_score(y_test, predictions)
 
 print('Accuracy Score:', metrics.accuracy_score(y_test,predictions))
+logging.info(f"Test accuracy: {test_acc}")
 #print(classification_report(y_test, predictions))
