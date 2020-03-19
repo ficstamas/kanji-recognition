@@ -129,7 +129,10 @@ def load_images(path="../data/kkanji/kkanji2/", category_limit=None, minimum_cou
         if files.__len__() == 0 or files.__len__() < minimum_count:
             continue
         # getting label from folder name
-        label = str(root.split("/")[-1])
+        if os.name == 'nt':
+            label = str(root.split("\\")[-1])
+        else:
+            label = str(root.split("/")[-1])
 
         first_image = True
         images = np.array([np.zeros([64, 64], dtype=np.uint8)], dtype=np.uint8)
