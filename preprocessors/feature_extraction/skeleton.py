@@ -58,7 +58,7 @@ def corner_points(skeleton, max_points):
     return result
 
 
-def define_graph(img: np.ndarray, max_points=20):
+def define_graph(img: np.ndarray, max_points=100):
     S = skeleton(img)
     cpoints = corner_points(S, max_points)
 
@@ -72,13 +72,13 @@ def define_graph(img: np.ndarray, max_points=20):
     # points between two points
     line = []
     while cpoints.__len__() > 0:
-        print(f"Sum is: {cpoints.__len__()}")
+        print(f"Num of Cpoints: {cpoints.__len__()}")
         # choosing node point
         p = cpoints[0][0]
         q = cpoints[0][1]
 
         area = check[p - 1:p + 2, q - 1:q + 2]
-        if np.sum(area) == 1:
+        if np.sum(area) <= 1:
             del cpoints[0]
             check[p, q] = 0
             continue
@@ -96,8 +96,10 @@ def define_graph(img: np.ndarray, max_points=20):
             area = check_sub[p-1:p+2, q-1:q+2]
             # query for available paths
             paths = np.where(area == 1)
+
+            # if it is a branching point
             if paths[0].shape[0] > 1 and [p, q] not in cpoints:
-                cpoints.append([p,q])
+                cpoints.append([p, q])
                 first_id = c2id[_c2id(line[0])]
                 second_id = None
                 if _c2id([p, q]) not in c2id:
@@ -117,17 +119,42 @@ def define_graph(img: np.ndarray, max_points=20):
                 line = []
                 break
 
-            step_direction = [paths[0][0]-1 if not (paths[0][0] == 1 and paths[1][0] == 1) else paths[0][1]-1,
-                              paths[1][0]-1 if not (paths[0][0] == 1 and paths[1][0] == 1) else paths[1][1]-1]
+            # if the point is the end of a line and there is no marked node point
+            if paths[0].shape[0] == 0 and [p, q] not in cpoints:
+                first_id = c2id[_c2id(line[0])]
+                second_id = None
+                if _c2id([p, q]) not in c2id:
+                    c2id[_c2id([p, q])] = r
+                    neighbour_matrix[r, r] = 1
+                    second_id = r
+                    r += 1
+                else:
+                    second_id = c2id[_c2id([p, q])]
+                # updating neighbouring matrix
+                neighbour_matrix[first_id, second_id] = line.__len__()
+                neighbour_matrix[second_id, first_id] = line.__len__()
+                # removing line from the original work area of the skeleton
+                for l in line[1:]:
+                    check[l[0], l[1]] = 0
+                if line.__len__() == 1:
+                    check[p, q] = 0
+                # resetting lines
+                line = []
+                break
+
+            step_direction = [paths[0][0]-1,
+                              paths[1][0]-1]
             # adding point to the line
             line.append([p, q])
             # updating the points location
             p += step_direction[0]
             q += step_direction[1]
+
+            print("Paths", paths)
+            print("p, q", [p, q])
+            print("cpoints", cpoints)
+
             # if it is a point from the possible node points
-            print(paths)
-            print([p, q])
-            print(cpoints)
             if [p, q] in cpoints:
                 # generate and add node id
                 first_id = c2id[_c2id(line[0])]
@@ -145,6 +172,18 @@ def define_graph(img: np.ndarray, max_points=20):
                 # removing line from the original work area of the skeleton
                 for l in line[1:]:
                     check[l[0], l[1]] = 0
+                # if there is 2 points next to each other then we are merging them
+                if line.__len__() == 1:
+                    area = check[p-1:p+2, q-1:q+2]
+                    area2 = check[line[0][0]-1:line[0][0]+2, line[0][1]-1:line[0][1]+2]
+                    # removing the one with smaller degree
+                    if np.sum(area) > np.sum(area2):
+                        cpoints.remove([line[0][0], line[0][1]])
+                        check[line[0][0], line[0][1]] = 0
+                    else:
+                        cpoints.remove([p, q])
+                        check[p, q] = 0
+
                 # resetting lines
                 line = []
                 break

@@ -2,10 +2,10 @@ from preprocessors.feature_extraction.skeleton import define_graph, corner_point
 from utils.images import load_images
 import cv2 as cv
 
-kanjis = load_images(minimum_count=5, random_seed=0, category_limit=1)
+kanjis = load_images(minimum_count=10, random_seed=0, category_limit=1)
 x_train, y_train, _, _ = kanjis.train_test_split(None)
 
-img = x_train[0]
+img = x_train[2]
 
 # S = skeleton(img)
 # C = corner_points(S,50)
