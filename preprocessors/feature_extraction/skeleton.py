@@ -27,12 +27,38 @@ def corner_points(skeleton, max_points):
 
     result = []
 
+    neighbours = []
     for i in range(c.shape[0]):
-        result.append([c[i, 0, 1], c[i, 0, 0]])
+        min = 4000
+        point = None
+        match = False
+        it = 0
+        if S[c[i, 0, 1], c[i, 0, 0]] == 0 or S[c[i, 0, 1], c[i, 0, 0]] == 1:
+            neighbours = []
+            for j in range(2):
+                it = j
+                for k in range((j + 1) * 2 + 1):
+                    for l in range((j + 1) * 2 + 1):
+                        if S[c[i, 0, 1] + k - 1, c[i, 0, 0] + l - 1] == 1:
+                            neighbours.append((c[i, 0, 1] + k - 1, c[i, 0, 0] + l - 1))
+
+            for p in neighbours:
+                #print(S[p[0] - 1:p[0] + 2, p[1] - 1:p[1] + 2])
+                count = np.sum(S[p[0] - 1:p[0] + 2, p[1] - 1:p[1] + 2])
+                #print(count)
+                if 0 < count < min:
+                    min = count
+                    point = p
+
+        if point is not None:
+            # print(point)
+            c[i, 0, 1] = point[0]
+            c[i, 0, 0] = point[1]
+            result.append([point[0], point[1]])
     return result
 
 
-def define_graph(img: np.ndarray, max_points=50):
+def define_graph(img: np.ndarray, max_points=20):
     S = skeleton(img)
     cpoints = corner_points(S, max_points)
 
@@ -45,8 +71,8 @@ def define_graph(img: np.ndarray, max_points=50):
     r = 0
     # points between two points
     line = []
-    while np.sum(check) > 0:
-        print(f"Sum is: {np.sum(check)}")
+    while cpoints.__len__() > 0:
+        print(f"Sum is: {cpoints.__len__()}")
         # choosing node point
         p = cpoints[0][0]
         q = cpoints[0][1]
@@ -62,14 +88,35 @@ def define_graph(img: np.ndarray, max_points=50):
             neighbour_matrix[r, r] = 1
             r += 1
         # selecting area
+        # Copy to prevent backtracking
+        check_sub = check.copy()
         while True:
-            # Copy to prevent backtracking
-            check_sub = check.copy()
             check_sub[p, q] = 0
             # refresh area
             area = check_sub[p-1:p+2, q-1:q+2]
             # query for available paths
             paths = np.where(area == 1)
+            if paths[0].shape[0] > 1 and [p, q] not in cpoints:
+                cpoints.append([p,q])
+                first_id = c2id[_c2id(line[0])]
+                second_id = None
+                if _c2id([p, q]) not in c2id:
+                    c2id[_c2id([p, q])] = r
+                    neighbour_matrix[r, r] = 1
+                    second_id = r
+                    r += 1
+                else:
+                    second_id = c2id[_c2id([p, q])]
+                # updating neighbouring matrix
+                neighbour_matrix[first_id, second_id] = line.__len__()
+                neighbour_matrix[second_id, first_id] = line.__len__()
+                # removing line from the original work area of the skeleton
+                for l in line[1:]:
+                    check[l[0], l[1]] = 0
+                # resetting lines
+                line = []
+                break
+
             step_direction = [paths[0][0]-1 if not (paths[0][0] == 1 and paths[1][0] == 1) else paths[0][1]-1,
                               paths[1][0]-1 if not (paths[0][0] == 1 and paths[1][0] == 1) else paths[1][1]-1]
             # adding point to the line
@@ -78,6 +125,9 @@ def define_graph(img: np.ndarray, max_points=50):
             p += step_direction[0]
             q += step_direction[1]
             # if it is a point from the possible node points
+            print(paths)
+            print([p, q])
+            print(cpoints)
             if [p, q] in cpoints:
                 # generate and add node id
                 first_id = c2id[_c2id(line[0])]
@@ -87,6 +137,8 @@ def define_graph(img: np.ndarray, max_points=50):
                     neighbour_matrix[r, r] = 1
                     second_id = r
                     r += 1
+                else:
+                    second_id = c2id[_c2id([p, q])]
                 # updating neighbouring matrix
                 neighbour_matrix[first_id, second_id] = line.__len__()
                 neighbour_matrix[second_id, first_id] = line.__len__()
