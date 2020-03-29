@@ -124,7 +124,8 @@ def load_images(path="../data/kkanji/kkanji2/", category_limit=None, minimum_cou
     logging.info(f"Loading images from {path}...")
     num = 1
     # walk in the folders
-    for root, dirs, files in tqdm.tqdm(list(os.walk(path))):
+    bar = tqdm.tqdm(list(os.walk(path)))
+    for root, dirs, files in bar:
         # skip if it is not containing files (just th first entry satisfies that) or contains enough samples
         if files.__len__() == 0 or files.__len__() < minimum_count:
             continue
@@ -149,9 +150,10 @@ def load_images(path="../data/kkanji/kkanji2/", category_limit=None, minimum_cou
         kanjis.add_images(images, label)
         # limiting loaded categories
         if category_limit is not None and num == category_limit:
+            bar.close()
             break
         elif category_limit is not None:
             num += 1
 
-    logging.info(f"{kanjis.__len__()} kanji under {kanjis.l2i.__len__()} classes is loaded")
+    logging.info(f"{kanjis.__len__()} kanji under {kanjis.l2i.__len__()} classes have been loaded")
     return kanjis
