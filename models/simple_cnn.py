@@ -28,7 +28,7 @@ BATCH_SIZE = 64
 IMAGE_SIZE = 64
 LEARNING_RATE = 0.001
 MOMENTUM = 0.9
-EPOCHS = 20
+EPOCHS = 1
 VALIDATION_SIZE = 0.3
 PATH = os.path.join(os.getcwd(), "../results/simple_cnn/")
 
@@ -37,7 +37,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 logging.info(f"Session initiated on {device} device")
 
 # Loading data
-kanjis = load_images(minimum_count=10, random_seed=0, category_limit=100)
+kanjis = load_images(minimum_count=10, random_seed=0, category_limit=10)
 x_train, y_train, x_test, y_test = kanjis.train_test_split(0.6)
 
 # validation set
@@ -149,7 +149,7 @@ for epoch in range(EPOCHS):  # loop over the dataset multiple times
 
     test_score = np.sum(scores)/scores.__len__()*100
     logging.info('Training loss after #%s/%s epoch: %.3f' % (
-        str(epoch + 1), EPOCHS, running_loss))
+        str(epoch + 1), EPOCHS, running_loss/(train_loader.dataset.tensors[1].shape[0]/BATCH_SIZE)))
     logging.info('Validation loss after #%s/%s epoch: %.3f' % (
         str(epoch + 1), EPOCHS, val_loss))
     logging.info('Test Accuracy after #%s/%s epoch: %.3f %%' % (
