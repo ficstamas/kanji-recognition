@@ -28,16 +28,16 @@ BATCH_SIZE = 64
 IMAGE_SIZE = 64
 LEARNING_RATE = 0.001
 MOMENTUM = 0.9
-EPOCHS = 1
+EPOCHS = 500
 VALIDATION_SIZE = 0.3
-PATH = os.path.join(os.getcwd(), "../results/simple_cnn/")
+PATH = os.path.join(os.getcwd(), "results/simple_cnn/")
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 logging.info(f"Session initiated on {device} device")
 
 # Loading data
-kanjis = load_images(minimum_count=10, random_seed=0, category_limit=10)
+kanjis = load_images(path="../data/kkanji/kkanji2/", minimum_count=10, random_seed=0, category_limit=5)
 x_train, y_train, x_test, y_test = kanjis.train_test_split(0.6)
 
 # validation set
@@ -62,16 +62,18 @@ logging.info(transformer)
 
 # converting data into tensors
 x_train_tensor = transformer(x_train.astype(np.uint8))
-y_train_tensor = torch.tensor(y_train)
+y_train_tensor = torch.tensor(y_train.astype(np.int64))
 
 x_test_tensor = transformer(x_test.astype(np.uint8))
-y_test_tensor = torch.tensor(y_test)
+y_test_tensor = torch.tensor(y_test.astype(np.int64))
 
 # setting up data loaders
 train_dataset = torch.utils.data.TensorDataset(x_train_tensor, y_train_tensor)
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=True, sampler=train_sampler)
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=True,
+                                           sampler=train_sampler)
 
-val_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=True, sampler=valid_sampler)
+val_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=True,
+                                         sampler=valid_sampler)
 
 test_dataset = torch.utils.data.TensorDataset(x_test_tensor, y_test_tensor)
 test_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True)
