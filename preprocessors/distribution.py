@@ -9,19 +9,19 @@ def ccw_distribution(x: np.ndarray, y: np.ndarray):
     logging.info("Constructing distributions...")
     labels = np.unique(y)
 
-    class_dist = {}
-    for i in range(labels.shape[0]):
-        _class = x[np.where(y == labels[i])]
-        _class_dist = None
-        for j in range(_class.shape[0]):
-            margin = np.histogramdd(np.ravel(_class[j]), bins=256)[0] / _class[j].size
-            margin = np.ravel(margin)
-            if _class_dist is None:
-                _class_dist = margin
-            else:
-                _class_dist = _class_dist + margin
-        _class_dist = _class_dist / _class.shape[0]
-        class_dist[i] = _class_dist
+    # class_dist = {}
+    # for i in range(labels.shape[0]):
+    #     _class = x[np.where(y == labels[i])]
+    #     _class_dist = None
+    #     for j in range(_class.shape[0]):
+    #         margin = np.histogramdd(np.ravel(_class[j]), bins=256)[0] / _class[j].size
+    #         margin = np.ravel(margin)
+    #         if _class_dist is None:
+    #             _class_dist = margin
+    #         else:
+    #             _class_dist = _class_dist + margin
+    #     _class_dist = _class_dist / _class.shape[0]
+    #     class_dist[i] = _class_dist
 
     dist = []
 
@@ -29,7 +29,7 @@ def ccw_distribution(x: np.ndarray, y: np.ndarray):
         img = x[i]
         margin = np.histogramdd(np.ravel(img), bins=256)[0] / img.size
         margin = np.ravel(margin)
-        cat = class_dist[y[i]].tolist()
+        # cat = class_dist[y[i]].tolist()
         # prob = np.zeros(cat.shape)
         # for j in range(margin.shape[0]):
         #     if cat[j] == 0:
