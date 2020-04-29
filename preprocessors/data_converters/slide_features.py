@@ -53,7 +53,7 @@ def save_data(path: str, data: list, file_header: dict):
 
 
 if __name__ == '__main__':
-    kanjis = load_images(path="../../data/kkanji/kkanji2/", minimum_count=10, random_seed=0, category_limit=2)
+    kanjis = load_images(path="./data/kkanji/kkanji2/", minimum_count=10, random_seed=0, category_limit=2)
     x_train, y_train, x_test, y_test = kanjis.train_test_split(0.6)
     train_converted, num_of_features = make_train_data(x_train, y_train)
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
         "features": features
     }
 
-    save_data("../../data/slide_features_train.txt", train_converted, header)
+    save_data("./data/slide_features_train.txt", train_converted, header)
     del x_train, y_train, train_converted, num_of_features, entries, labels, features, header
 
     test_converted, num_of_features = make_train_data(x_test, y_test)
@@ -82,4 +82,4 @@ if __name__ == '__main__':
         "features": features
     }
 
-    save_data("../../data/slide_features_test.txt", test_converted, header)
+    save_data("./data/slide_features_test.txt", test_converted, header)
