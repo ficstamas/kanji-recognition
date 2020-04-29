@@ -46,14 +46,14 @@ def save_data(path: str, data: list, file_header: dict):
             for _features in entry["data"]:
                 f.write(str(_features))
                 f.write(":")
-                f.write(str(entry["data"][_features]))
+                f.write('{:.6f}'.format(entry["data"][_features]))
                 f.write(" ")
             f.write("\n")
             data.remove(entry)
 
 
 if __name__ == '__main__':
-    kanjis = load_images(path="../../data/kkanji/kkanji2/", minimum_count=5, random_seed=0, category_limit=5)
+    kanjis = load_images(path="../../data/kkanji/kkanji2/", minimum_count=10, random_seed=0, category_limit=2)
     x_train, y_train, x_test, y_test = kanjis.train_test_split(0.6)
     train_converted, num_of_features = make_train_data(x_train, y_train)
 
