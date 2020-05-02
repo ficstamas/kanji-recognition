@@ -22,6 +22,7 @@ def make_train_data(x: np.ndarray, y: np.ndarray):
         hrc = np.ravel(hrc).astype(np.float)
         hcc = np.ravel(hcc).astype(np.float)
         feature_vector = np.concatenate([np.array([entropy], dtype=np.float), dist, image, canny, hrr, hrc, hcc])
+        feature_vector = np.sqrt(np.power(feature_vector, 2))
         del dist, image, entropy, canny, hrr, hrc, hcc
         indexed_features = {}
         for j in range(feature_vector.shape[0]):
@@ -41,19 +42,20 @@ def save_data(path: str, data: list, file_header: dict):
         while data.__len__() != 0:
             r = random.randint(0, data.__len__()-1)
             entry = data[r]
-            f.write(str(entry["label"]))
+            f.write('{:d}'.format(int(entry["label"])))
             f.write(" ")
-            for _features in entry["data"]:
-                f.write(str(_features))
+            for k, _features in enumerate(entry["data"]):
+                f.write('{:d}'.format(int(_features)))
                 f.write(":")
                 f.write('{:.6f}'.format(entry["data"][_features]))
-                f.write(" ")
+                if k < len(entry["data"])-1:
+                    f.write(" ")
             f.write("\n")
             data.remove(entry)
 
 
 if __name__ == '__main__':
-    kanjis = load_images(path="./data/kkanji/kkanji2/", minimum_count=10, random_seed=0, category_limit=2)
+    kanjis = load_images(path="./data/kkanji/kkanji2/", minimum_count=10, random_seed=0, category_limit=None)
     x_train, y_train, x_test, y_test = kanjis.train_test_split(0.6)
     train_converted, num_of_features = make_train_data(x_train, y_train)
 

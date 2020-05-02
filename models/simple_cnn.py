@@ -37,7 +37,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 logging.info(f"Session initiated on {device} device")
 
 # Loading data
-kanjis = load_images(path="../data/kkanji/kkanji2/", minimum_count=10, random_seed=0, category_limit=5)
+kanjis = load_images(path="../data/kkanji/kkanji2/", minimum_count=10, random_seed=0, category_limit=None)
 x_train, y_train, x_test, y_test = kanjis.train_test_split(0.6)
 
 # validation set

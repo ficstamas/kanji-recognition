@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 
-kanjis = load_images(minimum_count=5, random_seed=0, category_limit=5)
+kanjis = load_images(minimum_count=5, random_seed=0, category_limit=None)
 x_train, y_train, _, _ = kanjis.train_test_split(None)
 
 parameters = [{"n_neighbors": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],

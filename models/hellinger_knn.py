@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 
-kanjis = load_images(minimum_count=5, random_seed=0, category_limit=30)
+kanjis = load_images(minimum_count=5, random_seed=0, category_limit=None)
 x_train, y_train, x_test, y_test = kanjis.train_test_split(0.6)
 
 class_dists = ccw_distribution(x_train, y_train)
