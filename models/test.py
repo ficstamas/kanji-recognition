@@ -1,21 +1,45 @@
 from preprocessors.feature_extraction.skeleton import barmi, define_graph, corner_points, skeleton
-from utils.images import load_images
+#from utils.images import load_images
 import cv2 as cv
+from sklearn.naive_bayes import GaussianNB
+from utils.images import load_images
+from sklearn import metrics
+import logging
+import numpy as np
+from preprocessors.baseline import ravel_data
+from sklearn.svm import LinearSVC
 
-kanjis = load_images('C:\\Users\\takac\\OneDrive\\Desktop\\asd', minimum_count=10, random_seed=0, category_limit=1)
-x_train, y_train, _, _ = kanjis.train_test_split(None)
 
-img = x_train[2]
+kanjis = load_images('C:\\Users\\HealthTeam\\Desktop\\mini-kanji', minimum_count=10, random_seed=0, category_limit=None)
+x_train, y_train, x_test, y_test = kanjis.train_test_split(0.6)
 
-S = skeleton(img)
-C = barmi(S)
+#img = x_train[2]
 
+#S = skeleton(img)
+num = 0
+m = []
+for img in x_train:
+    C = define_graph(img)
+    m.append(C)
+    num+=1
+    print(num)
+m_test=[]
+for img in x_test:
+    C = define_graph(img)
+    m_test.append(C)
+
+x_train = np.array(m)
+print(x_train.shape)
+x_test = np.array(m_test)
 #asd = define_graph(img)
+print('tanítás')
 
-#cv.imshow("original", img)
+model = LinearSVC()
+model.fit(ravel_data(x_train), y_train)
 
-# cv.imshow("N", cv.resize(N, (N.shape[0]*4, N.shape[1]*4), interpolation=cv.INTER_AREA))
-# cv.imshow("skeleton", cv.resize(skel, (skel.shape[0]*8, skel.shape[1]*8), interpolation=cv.INTER_AREA))
-cv.waitKey(0)
-cv.destroyAllWindows()
+predictions = model.predict(ravel_data(x_test))
+test_acc = metrics.cohen_kappa_score(y_test, predictions)
+
+print('Accuracy Score:', metrics.accuracy_score(y_test,predictions))
+logging.info(f"Test accuracy: {test_acc}")
 

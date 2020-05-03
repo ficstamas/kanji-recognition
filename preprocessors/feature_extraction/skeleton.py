@@ -166,9 +166,26 @@ def barmi(skeleton):
             area = S[i-_k:i+_k+1,j-_k:j+_k+1]
             conv_curve[i,j] += np.sum(area*w)
 
+    conv_endpoints = np.where(conv_endpoints < np.amax(conv_endpoints),0,np.amax(conv_endpoints))
+    conv_curve = np.where(conv_curve < np.amax(conv_curve),0,np.amax(conv_curve))
 
-    conv_debug = conv_debug*conv_curve
-    breakpoint()
+    conv_debug = conv_endpoints+conv_curve
+
+    conv_end = np.zeros(skeleton.shape)
+    conv_curv = np.zeros(skeleton.shape)
+    conv_deb = np.zeros(skeleton.shape)
+    conv_end = conv_endpoints[_k:S.shape[0] - _k, _k:S.shape[1] - _k]
+    conv_curv = conv_curve[_k:S.shape[0] - _k, _k:S.shape[1] - _k]
+    conv_deb = conv_end + conv_curv
+
+    points = []
+    #print(conv_deb.shape)
+    for i in range(conv_deb.shape[0]):
+        for j in range(conv_deb.shape[1]):
+            if conv_deb[i][j] > 0:
+                points.append([i,j])
+
+    return points
 
 
 def corner_points(skeleton, max_points):
@@ -218,13 +235,14 @@ def corner_points(skeleton, max_points):
         for j in range(S.shape[1]):
             if S[i][j] >= 1:
                 result.append([i,j])
-
+    breakpoint()
     return result
 
-def define_graph(img: np.ndarray, max_points=100):
+def define_graph(img: np.ndarray, max_points=50):
     S = skeleton(img)
-    cpoints = corner_points(S, max_points)
-
+    #print(S.shape)
+    cpoints = barmi(S)
+    #print(cpoints)
     check = S.copy()
     neighbour_matrix = np.zeros([max_points, max_points])
 
@@ -234,12 +252,15 @@ def define_graph(img: np.ndarray, max_points=100):
     r = 0
     # points between two points
     line = []
+    b = False
     while cpoints.__len__() > 0:
-        print(f"Num of Cpoints: {cpoints.__len__()}")
+        if b:
+            break
+        #print(f"Num of Cpoints: {cpoints.__len__()}")
         # choosing node point
         p = cpoints[0][0]
         q = cpoints[0][1]
-
+        #print(p,q)
         area = check[p - 1:p + 2, q - 1:q + 2]
         if np.sum(area) <= 1:
             del cpoints[0]
@@ -266,10 +287,14 @@ def define_graph(img: np.ndarray, max_points=100):
                 first_id = c2id[_c2id(line[0])]
                 second_id = None
                 if _c2id([p, q]) not in c2id:
+                    if r >=50:
+                        b =True
+                        break
                     c2id[_c2id([p, q])] = r
                     neighbour_matrix[r, r] = 1
                     second_id = r
                     r += 1
+
                 else:
                     second_id = c2id[_c2id([p, q])]
                 # updating neighbouring matrix
@@ -287,6 +312,9 @@ def define_graph(img: np.ndarray, max_points=100):
                 first_id = c2id[_c2id(line[0])]
                 second_id = None
                 if _c2id([p, q]) not in c2id:
+                    if r >= 50:
+                        b = True
+                        break
                     c2id[_c2id([p, q])] = r
                     neighbour_matrix[r, r] = 1
                     second_id = r
@@ -313,9 +341,9 @@ def define_graph(img: np.ndarray, max_points=100):
             p += step_direction[0]
             q += step_direction[1]
 
-            print("Paths", paths)
-            print("p, q", [p, q])
-            print("cpoints", cpoints)
+            #print("Paths", paths)
+            #print("p, q", [p, q])
+            #print("cpoints", cpoints)
 
             # if it is a point from the possible node points
             if [p, q] in cpoints:
@@ -323,6 +351,9 @@ def define_graph(img: np.ndarray, max_points=100):
                 first_id = c2id[_c2id(line[0])]
                 second_id = None
                 if _c2id([p, q]) not in c2id:
+                    if r >=50:
+                        b = True
+                        break
                     c2id[_c2id([p, q])] = r
                     neighbour_matrix[r, r] = 1
                     second_id = r
@@ -350,6 +381,7 @@ def define_graph(img: np.ndarray, max_points=100):
                 # resetting lines
                 line = []
                 break
+
     return neighbour_matrix
 
 
