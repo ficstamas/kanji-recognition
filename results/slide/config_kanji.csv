@@ -1,0 +1,26 @@
+RangePow = 6,18
+K = 2,6
+L = 20,50
+Sparsity = 1,1,1,1
+
+Batchsize=256
+Rehash=6400
+Rebuild=128000
+InputDim=20733
+totRecords=80696
+totRecordsTest=52784
+
+Lr=0.0001
+Epoch=20
+Stepsize=1000
+
+sizesOfLayers=256,1566
+numLayer=2
+
+trainData=../data/slide_features_train.txt
+testData=../data/slide_features_test.txt
+
+weight=../data/savedWeight.npz
+savedweight=../data/savedWeight.npz
+
+logFile=../data/log.txt
