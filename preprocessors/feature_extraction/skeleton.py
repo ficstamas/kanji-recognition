@@ -268,6 +268,9 @@ def define_graph(img: np.ndarray, max_points=50):
             continue
 
         if _c2id([p, q]) not in c2id:
+            if r >= 50:
+                b = True
+                break
             c2id[_c2id([p, q])] = r
             neighbour_matrix[r, r] = 1
             r += 1

@@ -1,4 +1,7 @@
 from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import LinearSVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeClassifier
 from utils.images import load_images
 from sklearn import metrics
 import logging
@@ -31,6 +34,7 @@ hog_test_x = np.array(hog_test_x)
 
 print('x_test kész, tanítás jön')
 #print(hog_train_x.shape,x_train.shape)
+'''
 gnb = GaussianNB()
 gnb.fit(ravel_data(hog_train_x), y_train)
 
@@ -42,4 +46,35 @@ print('Accuracy Score:', metrics.accuracy_score(y_test,pred))
 logging.info(f"Test accuracy: {test_acc}")
 
 file = open('../results/Naive_Bayes/acc_hog.txt','w')
+file.write(str(test_acc))
+'''
+print('svm')
+model = LinearSVC()
+model.fit(ravel_data(hog_train_x), y_train)
+
+predictions = model.predict(ravel_data(hog_test_x))
+test_acc = metrics.cohen_kappa_score(y_test, predictions)
+
+print('Accuracy Score:', metrics.accuracy_score(y_test,predictions))
+logging.info(f"Test accuracy: {test_acc}")
+
+file = open('../results/svm/acc_hog.txt','w')
+file.write(str(test_acc))
+
+print('tree')
+
+sc_X = StandardScaler()
+x_train = sc_X.fit_transform(ravel_data(hog_train_x))
+x_test = sc_X.transform(ravel_data(hog_test_x))
+
+classifier = DecisionTreeClassifier()
+classifier = classifier.fit(x_train,y_train)
+
+y_pred = classifier.predict(x_test)
+test_acc = metrics.cohen_kappa_score(y_test, y_pred)
+
+print('Accuracy Score:', metrics.accuracy_score(y_test,y_pred))
+logging.info(f"Test accuracy: {test_acc}")
+
+file = open('../results/Decision_tree/acc_hog.txt','w')
 file.write(str(test_acc))
